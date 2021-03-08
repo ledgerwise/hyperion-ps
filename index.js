@@ -19,6 +19,7 @@ class HPSC extends EventEmitter {
     name,
     loopWait = 10,
     healthLoops = 35,
+    simpleActions = false,
   }) {
     super();
     this.loopCounter = 0;
@@ -32,6 +33,7 @@ class HPSC extends EventEmitter {
     this.nextBlock = startBlock;
     this.account = account;
     this.name = name;
+    this.simpleActions = simpleActions;
   }
 
   async fetchEndpoints() {
@@ -106,11 +108,14 @@ class HPSC extends EventEmitter {
       this.account
     }&block_num=${
       this.nextBlock
-    }-100000000000&limit=1000&noBinary=true&simple=true&sort=asc`;
+    }-100000000000&limit=1000&noBinary=true&simple=${
+      this.simpleActions
+    }&sort=asc`;
     logger.debug(`Getting actions: ${url}`);
     try {
       const response = await axios.get(url, { timeout: 5000 });
-      return response.data.simple_actions;
+      if (this.simpleActions) return response.data.simple_actions;
+      else return response.data.actions;
     } catch (error) {
       logger.error(error);
       return [];
