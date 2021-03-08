@@ -141,10 +141,12 @@ class HPSC extends EventEmitter {
 
       //Get actions
       const actions = await this.fetchActions();
-
+      logger.debug(`Got ${actions.length} new actions to process`);
       if (actions.length) {
         this.emit('actions', actions);
-        this.nextBlock = actions[actions.length - 1].block + 1;
+        if (this.simpleActions)
+          this.nextBlock = actions[actions.length - 1].block + 1;
+        else this.nextBlock = actions[actions.length - 1].block_num + 1;
       }
 
       this.loops++;
@@ -173,6 +175,8 @@ logger.info('Starting client');
 client.start();
 client.on('actions', (actions) => {
   for (const action of actions) {
-    console.log(`${action.block} ${action.timestamp} ${action.action}`);
+    logger.debug(
+      `${action.block_num} ${action.global_sequence} ${action.timestamp} ${action.act.name}`
+    );
   }
 });
