@@ -6,7 +6,7 @@ const logger = require('./src/logger')({
   loglabel: 'hyperion-ps',
 });
 
-if ((process.env.NODE_ENV = 'development')) logger.level = 'debug';
+if ((process.env.NODE_ENV === 'development')) logger.level = 'debug';
 
 class HPSC extends EventEmitter {
   constructor({
