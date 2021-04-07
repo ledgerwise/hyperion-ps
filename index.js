@@ -108,7 +108,7 @@ class HPSC extends EventEmitter {
       this.account
     }&block_num=${
       this.nextBlock
-    }-100000000000&limit=1000&noBinary=true&simple=${
+    }-100000000000&limit=1000&noBinary=false&simple=${
       this.simpleActions
     }&sort=asc`;
     logger.debug(`Getting actions: ${url}`);
