@@ -6,7 +6,7 @@ const logger = require('./src/logger')({
   loglabel: 'hyperion-ps',
 });
 
-if ((process.env.NODE_ENV === 'development')) logger.level = 'debug';
+if (process.env.NODE_ENV === 'development') logger.level = 'debug';
 
 class HPSC extends EventEmitter {
   constructor({
@@ -20,6 +20,7 @@ class HPSC extends EventEmitter {
     loopWait = 10,
     healthLoops = 35,
     simpleActions = false,
+    queryLimit = 100,
   }) {
     super();
     this.loopCounter = 0;
@@ -34,6 +35,7 @@ class HPSC extends EventEmitter {
     this.account = account;
     this.name = name;
     this.simpleActions = simpleActions;
+    this.queryLimit = queryLimit;
   }
 
   async fetchEndpoints() {
@@ -106,11 +108,9 @@ class HPSC extends EventEmitter {
   async fetchActions() {
     const url = `${this.randomEndpoint()}/v2/history/get_actions?account=${
       this.account
-    }&block_num=${
-      this.nextBlock
-    }-100000000000&limit=1000&noBinary=false&simple=${
-      this.simpleActions
-    }&sort=asc`;
+    }&block_num=${this.nextBlock}-100000000000&limit=${
+      this.queryLimit
+    }&noBinary=false&simple=${this.simpleActions}&sort=asc`;
     logger.debug(`Getting actions: ${url}`);
     try {
       const response = await axios.get(url, { timeout: 5000 });
