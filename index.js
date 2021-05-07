@@ -143,7 +143,7 @@ class HPSC extends EventEmitter {
 
       //Get actions
       const actions = await this.fetchActions();
-      let filtered_actions = actions.filter(
+      const filtered_actions = actions.filter(
         (action) => action.global_sequence > this.last_global_sequence
       );
       logger.debug(`Got ${filtered_actions.length} new actions to process`);
@@ -152,8 +152,10 @@ class HPSC extends EventEmitter {
         this.last_global_sequence =
           filtered_actions[filtered_actions.length - 1].global_sequence;
         if (this.simpleActions)
-          this.nextBlock = actions[actions.length - 1].block;
-        else this.nextBlock = actions[actions.length - 1].block_num;
+          this.nextBlock = filtered_actions[filtered_actions.length - 1].block;
+        else
+          this.nextBlock =
+            filtered_actions[filtered_actions.length - 1].block_num;
       }
 
       this.loops++;
