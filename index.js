@@ -9,6 +9,8 @@ const logger = require('./src/logger')({
 if (process.env.NODE_ENV === 'development') logger.level = 'debug';
 
 class HPSC extends EventEmitter {
+  last_global_sequence = 0;
+
   constructor({
     endpoints = [],
     fetchEndpointList = true,
@@ -141,12 +143,17 @@ class HPSC extends EventEmitter {
 
       //Get actions
       const actions = await this.fetchActions();
-      logger.debug(`Got ${actions.length} new actions to process`);
-      if (actions.length) {
-        this.emit('actions', actions);
+      let filtered_actions = actions.filter(
+        (action) => action.global_sequence > this.last_global_sequence
+      );
+      logger.debug(`Got ${filtered_actions.length} new actions to process`);
+      if (filtered_actions.length) {
+        this.emit('actions', filtered_actions);
+        this.last_global_sequence =
+          filtered_actions[filtered_actions.length - 1].global_sequence;
         if (this.simpleActions)
-          this.nextBlock = actions[actions.length - 1].block + 1;
-        else this.nextBlock = actions[actions.length - 1].block_num + 1;
+          this.nextBlock = actions[actions.length - 1].block;
+        else this.nextBlock = actions[actions.length - 1].block_num;
       }
 
       this.loops++;
