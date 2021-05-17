@@ -144,6 +144,7 @@ class HPSC extends EventEmitter {
 
       //Get actions
       const actions = await this.fetchActions();
+      this.emit('successful_query');
       const filtered_actions = actions.filter(
         (action) => action.global_sequence > this.last_global_sequence
       );
