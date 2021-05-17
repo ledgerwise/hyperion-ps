@@ -138,7 +138,8 @@ class HPSC extends EventEmitter {
         logger.debug(`Healthy endpoints: ${this.healthyEndpoints}`);
       } else {
         logger.error(`No healthy endpoints found`);
-        return;
+        await this.sleep(this.loopWait);
+        continue;
       }
 
       //Get actions
