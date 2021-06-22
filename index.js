@@ -94,7 +94,9 @@ class HPSC extends EventEmitter {
         };
       })
     );
-    return result.filter((e) => e.status).map((e) => `https://${e.host}`);
+    return result
+      .filter((e) => e.status && e.host != '0.0.0.0:7000')
+      .map((e) => `https://${e.host}`);
   }
 
   async sleep(ms) {
