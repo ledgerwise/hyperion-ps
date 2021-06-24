@@ -8,6 +8,9 @@ const logger = require('./src/logger')({
 
 if (process.env.NODE_ENV === 'development') logger.level = 'debug';
 
+const axiosConfig = {
+  timeout: 10000,
+};
 class HPSC extends EventEmitter {
   last_global_sequence = 0;
 
@@ -44,7 +47,7 @@ class HPSC extends EventEmitter {
     const url = `https://api.ledgerwise.io/apps/nodestatus/${this.chainId}.json`;
     logger.debug(`Fetching endpoints from ${url}`);
     try {
-      const response = await axios.get(url);
+      const response = await axios.get(url, axiosConfig);
       if (response.status !== 200)
         throw `response.status.code response.status.text`;
       return [
@@ -64,7 +67,17 @@ class HPSC extends EventEmitter {
     const result = await Promise.all(
       this.endpoints.map(async (endpoint) => {
         const url = `${endpoint}/v2/health`;
-        const response = await axios.get(url);
+        let response;
+        try {
+          response = await axios.get(url, axiosConfig);
+        } catch (error) {
+          console.error('Error fetching endpoint health', error);
+        }
+        if (!response)
+          return {
+            host: '',
+            status: false,
+          };
         const servicesOk =
           response.data.health.filter((i) => i.status !== 'OK').length == 0;
         const featuresOk =
@@ -117,7 +130,7 @@ class HPSC extends EventEmitter {
     }&noBinary=false&simple=${this.simpleActions}&sort=asc`;
     logger.debug(`Getting actions: ${url}`);
     try {
-      const response = await axios.get(url, { timeout: 5000 });
+      const response = await axios.get(url, axiosConfig);
       if (this.simpleActions) return response.data.simple_actions;
       else return response.data.actions;
     } catch (error) {
